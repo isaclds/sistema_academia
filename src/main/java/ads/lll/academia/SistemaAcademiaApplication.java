@@ -5,20 +5,22 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ProjetoApplication implements CommandLineRunner {
+public class SistemaAcademiaApplication implements CommandLineRunner {
 
-	private final Menu menu;
+//	private final Menu menu;
 
-	public ProjetoApplication(Menu menu) {
-		this.menu = menu;
+	public SistemaAcademiaApplication() {
+//		Menu menu
+//		this.menu = menu;
 	}
 
 	static void main(String[] args) {
-		SpringApplication.run(ProjetoApplication.class, args);
+		SpringApplication.run(SistemaAcademiaApplication.class, args);
 	}
 
 	@Override
 	public void run(String... args) {
-		menu.run();
+//		menu.run();
+		System.out.println("Rodando");
 	}
 }

@@ -13,6 +13,8 @@ public interface AlunoRepository extends CrudRepository<Aluno, Integer> {
 
     Optional<Aluno> findByNrCpf(String nrCpf);
 
+    Optional<Aluno> findByNmEmail(String nmEmail);
+
     boolean existsByNrCpf(String nrCpf);
 
     boolean existsByNmEmail(String nmEmail);

@@ -11,8 +11,6 @@ import java.util.Optional;
 @Repository
 public interface PlanoRepository extends CrudRepository<Plano, Integer> {
 
-    List<Plano> findByFlAtivoTrue();
-
     boolean existsByNmNomeIgnoreCase(String nmNome);
 
     @Query("""
