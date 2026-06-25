@@ -36,6 +36,7 @@ public class MatriculaService {
 
         matricula.setIdAluno(aluno);
         matricula.setIdPlano(plano);
+        matricula.setDtInicio(LocalDate.now());
         matricula.setDtVencimento(LocalDate.now().plusMonths(plano.getNrDuracaoMeses()));
         matricula.setTpStatus(Matricula.TpStatus.ATIVA);
 
