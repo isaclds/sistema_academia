@@ -6,26 +6,39 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class PlanoService {
 
-    PlanoRepository planoRepository;
+    private final PlanoRepository planoRepository;
 
     public PlanoService(PlanoRepository planoRepository) {
         this.planoRepository = planoRepository;
     }
 
     public Plano create(String nome, BigDecimal valor, Integer duracaoMeses) {
+
         if (planoRepository.existsByNmNomeIgnoreCase(nome)) {
-            throw new IllegalArgumentException("Plano já cadastrado: " + nome);
+            throw new IllegalArgumentException("Já existe um plano com esse nome.");
         }
+
+        if (valor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("O valor do plano deve ser maior que zero.");
+        }
+
+        if (duracaoMeses <= 0) {
+            throw new IllegalArgumentException("A duração deve ser maior que zero.");
+        }
+
         Plano plano = new Plano();
+
         plano.setNmNome(nome);
         plano.setVlValor(valor);
         plano.setNrDuracaoMeses(duracaoMeses);
-        return planoRepository.save(plano);
+
+        planoRepository.save(plano);
+
+        return plano;
     }
 
     public List<Plano> findAll() {
@@ -37,7 +50,28 @@ public class PlanoService {
     }
 
     public Plano findByNome(String nome) {
-        return planoRepository.findByNmNomeIgnoreCase(nome).orElse(null);
+        return planoRepository.findByNmNomeIgnoreCase(nome)
+                .orElse(null);
+    }
+
+    public Plano update(Integer id, String nome, BigDecimal valor, Integer duracaoMeses) {
+
+        Plano plano = planoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Plano não encontrado."));
+
+        plano.setNmNome(nome);
+        plano.setVlValor(valor);
+        plano.setNrDuracaoMeses(duracaoMeses);
+
+        planoRepository.save(plano);
+
+        return plano;
+    }
+
+    public void delete(Integer id) {
+
+        Plano plano = planoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Plano não encontrado."));
+
+        planoRepository.delete(plano);
     }
 
     public List<Plano> findPlanosComMatriculasAtivas() {
@@ -46,27 +80,5 @@ public class PlanoService {
 
     public List<Object[]> countAlunosPorPlano() {
         return planoRepository.countAlunosPorPlano();
-    }
-
-    public Plano update(Integer id, String nome, BigDecimal valor, Integer duracaoMeses) {
-        Plano plano = planoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Plano não encontrado: " + id));
-
-        if (nome != null && !nome.equalsIgnoreCase(plano.getNmNome())
-                && planoRepository.existsByNmNomeIgnoreCase(nome)) {
-            throw new IllegalArgumentException("Já existe um plano com o nome: " + nome);
-        }
-
-        if (nome != null)         plano.setNmNome(nome);
-        if (valor != null)        plano.setVlValor(valor);
-        if (duracaoMeses != null) plano.setNrDuracaoMeses(duracaoMeses);
-
-        return planoRepository.save(plano);
-    }
-
-    public void delete(Integer id) {
-        Plano plano = planoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Plano não encontrado: " + id));
-        planoRepository.delete(plano);
     }
 }
