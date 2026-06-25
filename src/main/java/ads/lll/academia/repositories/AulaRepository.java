@@ -9,8 +9,6 @@ import java.util.List;
 
 @Repository
 public interface AulaRepository extends CrudRepository<Aula, Integer> {
-    List<Aula> findByFlAtivaTrue();
-
     @Query(value = """
         SELECT a.* FROM aula a
         WHERE a.fl_ativa = true
