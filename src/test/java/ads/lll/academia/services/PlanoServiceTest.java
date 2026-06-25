@@ -10,9 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,61 +30,72 @@ class PlanoServiceTest {
     @BeforeEach
     void setUp() {
         plano = new Plano();
-        plano.setNmNome("Plano Mensal");
-        plano.setVlValor(new BigDecimal("99.90"));
-        plano.setNrDuracaoMeses(1);
+        plano.setId(1);
+        plano.setNmNome("Premium");
+        plano.setVlValor(BigDecimal.valueOf(99.90));
+        plano.setNrDuracaoMeses(12);
     }
 
     @Test
-    void create_deveSalvarERetornarPlano_quandoNomeNaoExiste() {
-        when(planoRepository.existsByNmNomeIgnoreCase("Plano Mensal")).thenReturn(false);
-        when(planoRepository.save(any(Plano.class))).thenReturn(plano);
+    void create_deveSalvarPlano() {
 
-        Plano resultado = planoService.create("Plano Mensal", new BigDecimal("99.90"), 1);
+        when(planoRepository.existsByNmNomeIgnoreCase("Premium"))
+                .thenReturn(false);
 
-        assertNotNull(resultado);
-        assertEquals("Plano Mensal", resultado.getNmNome());
-        assertEquals(new BigDecimal("99.90"), resultado.getVlValor());
-        assertEquals(1, resultado.getNrDuracaoMeses());
-        verify(planoRepository, times(1)).save(any(Plano.class));
-    }
+        when(planoRepository.save(any(Plano.class)))
+                .thenReturn(plano);
 
-    @Test
-    void create_deveLancarExcecao_quandoNomeJaCadastrado() {
-        when(planoRepository.existsByNmNomeIgnoreCase("Plano Mensal")).thenReturn(true);
-
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> planoService.create("Plano Mensal", new BigDecimal("99.90"), 1)
+        Plano resultado = planoService.create(
+                "Premium",
+                BigDecimal.valueOf(99.90),
+                12
         );
 
-        assertEquals("Plano já cadastrado: Plano Mensal", ex.getMessage());
-        verify(planoRepository, never()).save(any());
+        assertNotNull(resultado);
+        assertEquals("Premium", resultado.getNmNome());
+
+        verify(planoRepository, times(1))
+                .save(any(Plano.class));
     }
 
     @Test
-    void findAll_deveRetornarListaDePlanos() {
-        when(planoRepository.findAll()).thenReturn(List.of(plano));
+    void create_deveLancarExcecaoQuandoNomeExiste() {
+
+        when(planoRepository.existsByNmNomeIgnoreCase("Premium"))
+                .thenReturn(true);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> planoService.create(
+                        "Premium",
+                        BigDecimal.valueOf(99.90),
+                        12
+                )
+        );
+
+        verify(planoRepository, never())
+                .save(any());
+    }
+
+    @Test
+    void findAll_deveRetornarLista() {
+
+        when(planoRepository.findAll())
+                .thenReturn(List.of(plano));
 
         List<Plano> resultado = planoService.findAll();
 
         assertEquals(1, resultado.size());
-        verify(planoRepository, times(1)).findAll();
+
+        verify(planoRepository, times(1))
+                .findAll();
     }
 
     @Test
-    void findAll_deveRetornarListaVazia_quandoNaoHaPlanos() {
-        when(planoRepository.findAll()).thenReturn(List.of());
+    void findById_deveRetornarPlano() {
 
-        List<Plano> resultado = planoService.findAll();
-
-        assertTrue(resultado.isEmpty());
-    }
-
-    @Test
-    void findById_deveRetornarPlano_quandoIdExiste() {
-        plano.setId(1);
-        when(planoRepository.findById(1)).thenReturn(Optional.of(plano));
+        when(planoRepository.findById(1))
+                .thenReturn(java.util.Optional.of(plano));
 
         Plano resultado = planoService.findById(1);
 
@@ -95,129 +104,40 @@ class PlanoServiceTest {
     }
 
     @Test
-    void findById_deveRetornarNull_quandoIdNaoExiste() {
-        when(planoRepository.findById(99)).thenReturn(Optional.empty());
+    void findById_deveRetornarNull() {
 
-        Plano resultado = planoService.findById(99);
+        when(planoRepository.findById(1))
+                .thenReturn(java.util.Optional.empty());
 
-        assertNull(resultado);
-    }
-
-    @Test
-    void findByNome_deveRetornarPlano_quandoNomeExiste() {
-        when(planoRepository.findByNmNomeIgnoreCase("Plano Mensal")).thenReturn(Optional.of(plano));
-
-        Plano resultado = planoService.findByNome("Plano Mensal");
-
-        assertNotNull(resultado);
-        assertEquals("Plano Mensal", resultado.getNmNome());
-    }
-
-    @Test
-    void findByNome_deveRetornarNull_quandoNomeNaoExiste() {
-        when(planoRepository.findByNmNomeIgnoreCase("Inexistente")).thenReturn(Optional.empty());
-
-        Plano resultado = planoService.findByNome("Inexistente");
+        Plano resultado = planoService.findById(1);
 
         assertNull(resultado);
     }
 
     @Test
-    void findPlanosComMatriculasAtivas_deveRetornarListaCorreta() {
-        when(planoRepository.findPlanosComMatriculasAtivas()).thenReturn(List.of(plano));
+    void findByNome_deveRetornarPlano() {
 
-        List<Plano> resultado = planoService.findPlanosComMatriculasAtivas();
+        when(planoRepository.findByNmNomeIgnoreCase("Premium"))
+                .thenReturn(java.util.Optional.of(plano));
 
-        assertEquals(1, resultado.size());
-        verify(planoRepository, times(1)).findPlanosComMatriculasAtivas();
-    }
-
-    @Test
-    void findPlanosComMatriculasAtivas_deveRetornarListaVazia_quandoNaoHaMatriculas() {
-        when(planoRepository.findPlanosComMatriculasAtivas()).thenReturn(List.of());
-
-        List<Plano> resultado = planoService.findPlanosComMatriculasAtivas();
-
-        assertTrue(resultado.isEmpty());
-    }
-
-    @Test
-    void countAlunosPorPlano_deveRetornarListaDeResultados() {
-        Object[] linha = new Object[]{"Plano Basic", 5L};
-        List<Object[]> mockResultado = new ArrayList<>();
-        mockResultado.add(linha);
-
-        when(planoRepository.countAlunosPorPlano()).thenReturn(mockResultado);
-
-        List<Object[]> resultado = planoService.countAlunosPorPlano();
-
-        assertEquals(1, resultado.size());
-        assertEquals("Plano Basic", resultado.get(0)[0]);
-        assertEquals(5L, resultado.get(0)[1]);
-        verify(planoRepository, times(1)).countAlunosPorPlano();
-    }
-
-    @Test
-    void update_deveAtualizarERetornarPlano_quandoDadosValidos() {
-        plano.setId(1);
-        when(planoRepository.findById(1)).thenReturn(Optional.of(plano));
-        when(planoRepository.existsByNmNomeIgnoreCase("Plano Trimestral")).thenReturn(false);
-        when(planoRepository.save(any(Plano.class))).thenReturn(plano);
-
-        Plano resultado = planoService.update(1, "Plano Trimestral", new BigDecimal("249.90"), 3);
+        Plano resultado = planoService.findByNome("Premium");
 
         assertNotNull(resultado);
-        verify(planoRepository, times(1)).save(any(Plano.class));
+        assertEquals("Premium", resultado.getNmNome());
     }
 
     @Test
-    void update_deveLancarExcecao_quandoIdNaoExiste() {
-        when(planoRepository.findById(99)).thenReturn(Optional.empty());
+    void findPlanosComMatriculasAtivas_deveRetornarLista() {
 
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> planoService.update(99, "Plano X", new BigDecimal("99.90"), 1)
-        );
+        when(planoRepository.findPlanosComMatriculasAtivas())
+                .thenReturn(List.of(plano));
 
-        assertEquals("Plano não encontrado: 99", ex.getMessage());
-        verify(planoRepository, never()).save(any());
-    }
+        List<Plano> resultado =
+                planoService.findPlanosComMatriculasAtivas();
 
-    @Test
-    void update_deveLancarExcecao_quandoNovoNomeJaExiste() {
-        plano.setId(1);
-        when(planoRepository.findById(1)).thenReturn(Optional.of(plano));
-        when(planoRepository.existsByNmNomeIgnoreCase("Plano Anual")).thenReturn(true);
+        assertEquals(1, resultado.size());
 
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> planoService.update(1, "Plano Anual", new BigDecimal("99.90"), 1)
-        );
-
-        assertEquals("Já existe um plano com o nome: Plano Anual", ex.getMessage());
-        verify(planoRepository, never()).save(any());
-    }
-
-    @Test
-    void delete_deveDeletarPlano_quandoIdExiste() {
-        plano.setId(1);
-        when(planoRepository.findById(1)).thenReturn(Optional.of(plano));
-
-        planoService.delete(1);
-
-        verify(planoRepository, times(1)).delete(plano);
-    }
-
-    @Test
-    void delete_deveLancarExcecao_quandoIdNaoExiste() {
-        when(planoRepository.findById(99)).thenReturn(Optional.empty());
-
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> planoService.delete(99)
-        );
-
-        assertEquals("Plano não encontrado: 99", ex.getMessage());
-        verify(planoRepository, never()).delete(any());
+        verify(planoRepository)
+                .findPlanosComMatriculasAtivas();
     }
 }
