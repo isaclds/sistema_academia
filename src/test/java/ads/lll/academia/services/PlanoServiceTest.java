@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -142,13 +143,16 @@ class PlanoServiceTest {
 
     @Test
     void countAlunosPorPlano_deveRetornarListaDeResultados() {
-        Object[] linha = {"Plano Mensal", 5L};
-        when(planoRepository.countAlunosPorPlano()).thenReturn((List<Object[]>) List.of(linha));
+        Object[] linha = new Object[]{"Plano Basic", 5L};
+        List<Object[]> mockResultado = new ArrayList<>();
+        mockResultado.add(linha);
+
+        when(planoRepository.countAlunosPorPlano()).thenReturn(mockResultado);
 
         List<Object[]> resultado = planoService.countAlunosPorPlano();
 
         assertEquals(1, resultado.size());
-        assertEquals("Plano Mensal", resultado.get(0)[0]);
+        assertEquals("Plano Basic", resultado.get(0)[0]);
         assertEquals(5L, resultado.get(0)[1]);
         verify(planoRepository, times(1)).countAlunosPorPlano();
     }
