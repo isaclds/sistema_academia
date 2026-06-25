@@ -77,6 +77,13 @@ public class MatriculaService {
         return matricula;
     }
 
+    public boolean possuiMatriculaAtiva(Integer idAluno) {
+
+        Aluno aluno = alunoRepository.findById(idAluno).orElseThrow(() -> new IllegalArgumentException("Aluno não encontrado."));
+
+        return matriculaRepository.findByIdAlunoAndTpStatus(aluno, Matricula.TpStatus.ATIVA).isPresent();
+    }
+
     public int atualizarVencidas() {
         return matriculaRepository.atualizarMatriculasVencidas();
     }
