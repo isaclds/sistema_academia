@@ -30,6 +30,9 @@ public class Matricula {
     @JoinColumn(name = "id_plano", nullable = false)
     private Plano idPlano;
 
+    @Column(name = "dt_inicio", nullable = false)
+    private LocalDate dtInicio;
+
     @Column(name = "dt_vencimento", nullable = false)
     private LocalDate dtVencimento;
 
